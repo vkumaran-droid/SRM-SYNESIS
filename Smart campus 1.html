@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Classrooms: Comprehensive Campus Energy Intelligence [Dark Mode]</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #090d16;
+            --surface: #111827;
+            --surface-hover: #1f2937;
+            --border: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Modern Dark Header */
+        header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo-area h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-area p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        select,
+        button {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        select:hover,
+        button:hover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        button.btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        button.btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        /* Metrics Bar */
+        .metrics-bar {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 8px 0 4px 0;
+        }
+
+        .metric-sub {
+            font-size: 0.78rem;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .col-8 {
+            grid-column: span 8;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        .col-12 {
+            grid-column: span 12;
+        }
+
+        @media (max-width: 1024px) {
+
+            .col-8,
+            .col-4 {
+                grid-column: span 12;
+            }
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        .panel-header h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Tables (Scrollable for more rows) */
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+        }
+
+        .data-table td {
+            padding: 12px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .data-table tr:hover {
+            background: var(--surface-hover);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.nominal {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .status-badge.anomaly {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        /* Action Cards Container */
+        .action-scroll-box {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        /* Action Cards */
+        .action-card {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-left: 4px solid var(--warning);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .action-card h3 {
+            font-size: 0.82rem;
+            color: var(--warning);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .action-card p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .action-btn {
+            width: 100%;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 7px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--warning);
+            color: #000;
+        }
+
+        /* Chart Area */
+        .chart-box {
+            position: relative;
+            height: 260px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 28px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        footer span.kindness-rule {
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-area">
+            <h1>Phantom Classrooms</h1>
+            <p>Comprehensive Campus Energy Intelligence & Signal Fusion Platform</p>
+        </div>
+        <div class="nav-controls">
+            <select id="buildingSelect" onchange="updateDashboard()">
+                <option value="b1">Main Engineering Block</option>
+                <option value="b2">Science & Research Wing</option>
+                <option value="b3">Central Auditorium & Seminar Halls</option>
+            </select>
+            <select id="floorSelect" onchange="updateDashboard()">
+                <option value="f1">Floor 1 - General Lecture Halls</option>
+                <option value="f2">Floor 2 - Advanced Laboratories</option>
+                <option value="f3">Floor 3 - Executive & Seminar Rooms</option>
+            </select>
+            <button class="btn-primary" onclick="initiateScan()">Run System Scan</button>
+        </div>
+    </header>
+
+    <div class="main-grid">
+        <!-- Metrics Bar -->
+        <div class="metrics-bar">
+            <div class="metric-card">
+                <div class="metric-label">Active Power Load</div>
+                <div class="metric-value" id="powerVal">124.6 kW</div>
+                <div class="metric-sub">Grid Synchronized</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Detected Energy Waste</div>
+                <div class="metric-value" style="color: var(--danger);" id="wasteVal">18.4%</div>
+                <div class="metric-sub" style="color: var(--danger);">Actionable Mismatches</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Signal Fusion Confidence</div>
+                <div class="metric-value" style="color: var(--success);" id="confVal">99.1%</div>
+                <div class="metric-sub">Sensors & Schedules Matched</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Safety Gate Protocol</div>
+                <div class="metric-value" style="color: var(--warning);">ARMED</div>
+                <div class="metric-sub" style="color: var(--warning);">Human Override Priority</div>
+            </div>
+        </div>
+
+        <!-- Room Signal Fusion Table (Expanded with more classrooms) -->
+        <div class="panel col-8">
+            <div class="panel-header">
+                <h2>Comprehensive Room Signal Fusion Matrix</h2>
+                <span id="currentLocLabel" style="font-size:0.78rem; color:var(--primary); font-weight:600;">Main
+                    Engineering Block - Floor 1</span>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Room ID</th>
+                            <th>Timetable Schedule</th>
+                            <th>Sensors & Energy</th>
+                            <th>Fused Judgment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomTableBody">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Safety Gate & Recommender -->
+        <div class="panel col-4">
+            <div class="panel-header">
+                <h2>Safety Gate Verification</h2>
+                <span style="font-size:0.78rem; color:var(--warning); font-weight:600;">Manual Confirm</span>
+            </div>
+            <div class="action-scroll-box" id="actionContainer">
+                <!-- Dynamic Actions -->
+            </div>
+        </div>
+
+        <!-- Energy Diagnostics Chart -->
+        <div class="panel col-8">
+            <div class="panel-header">
+                <h2>Campus Energy Telemetry Diagnostics</h2>
+                <span style="font-size:0.78rem; color:var(--text-muted);">Live Telemetry Stream</span>
+            </div>
+            <div class="chart-box">
+                <canvas id="energyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Operations & Repeat Offenders -->
+        <div class="panel col-4">
+            <div class="panel-header">
+                <h2>Recurring Waste Patterns</h2>
+                <span style="font-size:0.78rem; color:var(--primary);">Analytics</span>
+            </div>
+            <div style="font-size:0.82rem; line-height:1.6; color:var(--text-muted);">
+                <p style="margin-bottom:10px;"><strong style="color:var(--text-main);">Classroom 102:</strong> Lights
+                    left on post 18:00 hrs (>4 times this week).</p>
+                <p style="margin-bottom:10px;"><strong style="color:var(--text-main);">Lab 204:</strong> Cooling active
+                    during session cancellations.</p>
+                <p style="margin-bottom:10px;"><strong style="color:var(--text-main);">Seminar Hall B:</strong>
+                    Projector bulb active overnight.</p>
+                <p><strong style="color:var(--text-main);">Room 108:</strong> AC running continuously on weekends.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div>PHANTOM CLASSROOMS &bull; CAMPUS ENERGY INTELLIGENCE</div>
+        <div class="kindness-rule">THE KINDNESS RULE: COMFORT FIRST, SAFETY FIRST, HUMAN OVERRIDE ALWAYS.</div>
+    </footer>
+
+    <script>
+        const roomData = {
+            b1: {
+                f1: [
+                    {id: "Room 101", schedule: "Active Class (13:00-15:00)", sensor: "Motion + Energy Active", judgment: "Occupied as Scheduled", badge: "nominal", text: "Nominal"},
+                    {id: "Room 102", schedule: "Empty (Class Ended 12:00)", sensor: "No Motion / Lights ON", judgment: "Phantom Energy Waste", badge: "anomaly", text: "Lights Left On"},
+                    {id: "Room 103", schedule: "Active Lecture", sensor: "Motion Detected", judgment: "Normal Operation", badge: "nominal", text: "Nominal"},
+                    {id: "Room 104", schedule: "Cancelled Session", sensor: "AC & Lights ON", judgment: "Phantom Energy Waste", badge: "anomaly", text: "Unoccupied Load"},
+                    {id: "Room 105", schedule: "Active Tutorial", sensor: "Motion + Full Power", judgment: "Occupied as Scheduled", badge: "nominal", text: "Nominal"},
+                    {id: "Room 106", schedule: "Empty (No Session)", sensor: "Projector Active", judgment: "Unattended Equipment", badge: "anomaly", text: "Projector Active"},
+                    {id: "Room 107", schedule: "Active Lab", sensor: "Equipment Running", judgment: "Normal Operation", badge: "nominal", text: "Nominal"},
+                    {id: "Room 108", schedule: "Empty (Ended 14:00)", sensor: "HVAC High Load", judgment: "Cooling Empty Room", badge: "anomaly", text: "HVAC Waste"},
+                    {id: "Room 109", schedule: "Active Class", sensor: "Motion Detected", judgment: "Normal Operation", badge: "nominal", text: "Nominal"},
+                    {id: "Room 110", schedule: "Empty", sensor: "Lights ON", judgment: "Phantom Energy Waste", badge: "anomaly", text: "Lights Left On"}
+                ],
+                f2: [
+                    {id: "Lab 201", schedule: "Active Research", sensor: "Full Equipment Load", judgment: "Occupied", badge: "nominal", text: "Nominal"},
+                    {id: "Lab 202", schedule: "Empty (Finished)", sensor: "Ventilation Active", judgment: "Unnecessary Ventilation", badge: "anomaly", text: "Ventilation Waste"},
+                    {id: "Lab 203", schedule: "Active Testing", sensor: "Motion Active", judgment: "Normal Operation", badge: "nominal", text: "Nominal"},
+                    {id: "Lab 204", schedule: "Cancelled Session", sensor: "HVAC Unit Operating at Max", judgment: "Cooling Empty Room", badge: "anomaly", text: "HVAC Waste"},
+                    {id: "Lab 205", schedule: "Active Class", sensor: "Sensors Nominal", judgment: "Normal Operation", badge: "nominal", text: "Nominal"},
+                    {id: "Lab 206", schedule: "Empty", sensor: "Workstations Sleep Mode OFF", judgment: "Power Draw Anomaly", badge: "anomaly", text: "PCs Active"}
+                ],
+                f3: [
+                    {id: "Executive 301", schedule: "Board Meeting", sensor: "Motion + Full Load", judgment: "Occupied", badge: "nominal", text: "Nominal"},
+                    {id: "Seminar Hall A", schedule: "Empty", sensor: "Projector & Sound Active", judgment: "Equipment Waste", badge: "anomaly", text: "System Active"},
+                    {id: "Seminar Hall B", schedule: "Active Seminar", sensor: "Motion + Audio ON", judgment: "Normal Operation", badge: "nominal", text: "Nominal"}
+                ]
+            }
+        };
+
+        let chartInstance = null;
+
+        function renderTable() {
+            const b = document.getElementById('buildingSelect').value;
+            const f = document.getElementById('floorSelect').value;
+            const tbody = document.getElementById('roomTableBody');
+            const actionContainer = document.getElementById('actionContainer');
+
+            const rooms = (roomData[b] && roomData[b][f]) ? roomData[b][f] : roomData['b1']['f1'];
+
+            tbody.innerHTML = '';
+            actionContainer.innerHTML = '';
+
+            let anomalyCount = 0;
+
+            rooms.forEach((r, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${r.id}</strong></td>
+                    <td>${r.schedule}</td>
+                    <td>${r.sensor}</td>
+                    <td>${r.judgment}</td>
+                    <td><span class="status-badge ${r.badge}">${r.text}</span></td>
+                `;
+                tbody.appendChild(tr);
+
+                if (r.badge === 'anomaly') {
+                    anomalyCount++;
+                    const actionDiv = document.createElement('div');
+                    actionDiv.className = 'action-card';
+                    actionDiv.innerHTML = `
+                        <h3>⚠️ ${r.id}: ${r.text}</h3>
+                        <p>Zero occupancy confirmed. Authorize safety gate override to cut power.</p>
+                        <button class="action-btn" onclick="executeOverride('${b}', '${f}', ${index})">AUTHORIZE OVERRIDE (SHUT DOWN)</button>
+                    `;
+                    actionContainer.appendChild(actionDiv);
+                }
+            });
+
+            if (anomalyCount === 0) {
+                actionContainer.innerHTML = `<p style="color:var(--success); font-weight:600; font-size:0.8rem; text-align:center; padding:20px;">All rooms running nominally. No intervention required.</p>`;
+            }
+
+            document.getElementById('wasteVal').innerText = (anomalyCount * 3.2).toFixed(1) + '%';
+
+            const bName = document.getElementById('buildingSelect').options[document.getElementById('buildingSelect').selectedIndex].text;
+            const fName = document.getElementById('floorSelect').options[document.getElementById('floorSelect').selectedIndex].text;
+            document.getElementById('currentLocLabel').innerText = `${bName} - ${fName}`;
+        }
+
+        function executeOverride(building, floor, index) {
+            const room = roomData[building][floor][index];
+            room.sensor = "Power Disabled / Secure";
+            room.judgment = "Optimized by Safety Gate";
+            room.badge = "nominal";
+            room.text = "Secure";
+
+            let currentPower = parseFloat(document.getElementById('powerVal').innerText);
+            let newPower = Math.max(40, currentPower - 5.5).toFixed(1);
+            document.getElementById('powerVal').innerText = newPower + ' kW';
+
+            alert(`[Safety Gate] Authorization confirmed for ${room.id}. Power safely shut down according to the Kindness Rule.`);
+
+            renderTable();
+        }
+
+        function initiateScan() {
+            const btn = document.querySelector('button.btn-primary');
+            btn.innerText = "Scanning...";
+            setTimeout(() => {
+                btn.innerText = "Run System Scan";
+                alert("System Scan Complete: All campus telemetry and sensor blocks synchronized.");
+            }, 800);
+        }
+
+        function updateDashboard() {
+            renderTable();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('energyChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                    datasets: [
+                        {
+                            label: 'Actual Grid Load (kW)',
+                            data: [65, 110, 135, 125, 130, 85, 45],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Optimized Target Load (kW)',
+                            data: [60, 95, 110, 100, 105, 65, 30],
+                            borderColor: '#22c55e',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {labels: {color: '#f9fafb', font: {family: 'Inter', weight: '500'}}}
+                    },
+                    scales: {
+                        x: {ticks: {color: '#9ca3af'}, grid: {color: '#1f2937'}},
+                        y: {ticks: {color: '#9ca3af'}, grid: {color: '#1f2937'}}
+                    }
+                }
+            });
+        }
+
+        window.onload = () => {
+            renderTable();
+            initChart();
+        };
+    </script>
+</body>
+
+</html>
